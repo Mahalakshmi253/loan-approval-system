@@ -200,21 +200,107 @@ with tab1:
 with tab2:
     st.header("Application Status")
 
-    job_id = st.text_input("Enter Job ID to check status")
+    applicant_id = st.text_input("Enter Applicant ID to check status", placeholder="e.g., APP-20240115100001")
 
-    if st.button("Check Status"):
-        try:
-            response = requests.get(
-                f"{API_BASE_URL}/api/loan-application/{job_id}/status",
-                timeout=10,
-            )
-            if response.status_code == 200:
-                status = response.json()
-                st.json(status)
-            else:
-                st.error("Job not found")
-        except Exception as e:
-            st.error(f"Error: {str(e)}")
+    if st.button("🔍 Check Status", use_container_width=True):
+        if not applicant_id.strip():
+            st.error("❌ Please enter an Applicant ID")
+        else:
+            try:
+                response = requests.get(
+                    f"{API_BASE_URL}/api/applications/{applicant_id}",
+                    timeout=10,
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    app = data["application"]
+
+                    # Display status with color coding
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        status = app["status"].upper()
+                        if status == "APPROVED":
+                            st.metric("Status", "✅ APPROVED")
+                        elif status == "REJECTED":
+                            st.metric("Status", "❌ REJECTED")
+                        elif status == "REVIEW":
+                            st.metric("Status", "⚠️ REVIEW")
+                        else:
+                            st.metric("Status", "⏳ PENDING")
+
+                    with col2:
+                        st.metric("Applicant ID", app["applicant_id"][-8:])
+
+                    with col3:
+                        st.metric("Loan Amount", f"${app['loan_amount']:,.0f}")
+
+                    with col4:
+                        st.metric("Credit Score", app["credit_score"])
+
+                    st.markdown("---")
+
+                    # Application Details
+                    with st.expander("📋 Application Details", expanded=True):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.write(f"**Age:** {app.get('age', 'N/A')}")
+                            st.write(f"**Income:** ${app.get('income', 0):,.0f}")
+                            st.write(f"**Employment Type:** {app.get('employment_type', 'N/A')}")
+                        with col2:
+                            st.write(f"**Tenure:** {app.get('tenure_months', 'N/A')} months")
+                            st.write(f"**Location:** {app.get('location', 'N/A')}")
+                            st.write(f"**Liabilities:** ${app.get('existing_liabilities', 0):,.0f}")
+
+                    # Applicant Profile
+                    if data.get("profile"):
+                        with st.expander("👤 Applicant Profile Analysis"):
+                            profile = data["profile"]
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.metric("Income Stability", f"{profile['income_stability']:.1%}")
+                                st.metric("Employment Risk", f"{profile['employment_risk']:.1%}")
+                            with col2:
+                                st.write(f"**Credit History:** {profile['credit_history']}")
+
+                    # Financial Risk
+                    if data.get("risk"):
+                        with st.expander("💰 Financial Risk Analysis"):
+                            risk = data["risk"]
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.metric("DTI Ratio", f"{risk['dti_ratio']:.2f}")
+                                st.metric("Credit Risk", risk['credit_risk'].upper())
+                            with col2:
+                                st.metric("Risk Score", f"{risk['risk_score']:.1%}")
+
+                    # Decision
+                    if data.get("decision"):
+                        with st.expander("🎯 Decision Details", expanded=True):
+                            decision = data["decision"]
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Decision", decision["classification"].upper())
+                            with col2:
+                                st.metric("Confidence", f"{decision['confidence']:.1%}")
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.write(f"**Explanation:** {decision['explanation']}")
+
+                    # Compliance
+                    if data.get("compliance"):
+                        with st.expander("🎫 Compliance & Case Info"):
+                            compliance = data["compliance"]
+                            st.write(f"**Case ID:** {compliance['case_id']}")
+                            st.write(f"**Status:** {'✅ Notified' if compliance['status'] else '⏳ Pending'}")
+
+                elif response.status_code == 404:
+                    st.error(f"❌ Application not found for Applicant ID: {applicant_id}")
+                else:
+                    st.error(f"❌ Error: {response.json().get('detail', 'Unknown error')}")
+            except requests.exceptions.ConnectionError:
+                st.error("❌ Cannot connect to API. Make sure the backend is running on port 8000.")
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
 
 with tab3:
     st.header("System Analytics")

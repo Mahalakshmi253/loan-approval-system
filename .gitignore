@@ -57,3 +57,4 @@ npm-debug.log
 *.temp
 *.bak
 .env
+.env

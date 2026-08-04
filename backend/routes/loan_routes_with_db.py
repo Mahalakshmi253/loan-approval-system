@@ -163,8 +163,12 @@ async def get_application(
             "applicant_id": db_application.applicant_id,
             "age": db_application.age,
             "income": db_application.income,
+            "employment_type": db_application.employment_type,
             "credit_score": db_application.credit_score,
             "loan_amount": db_application.loan_amount,
+            "tenure_months": db_application.tenure_months,
+            "existing_liabilities": db_application.existing_liabilities,
+            "location": db_application.location,
             "status": db_application.status,
             "timestamp": db_application.application_timestamp
         },
