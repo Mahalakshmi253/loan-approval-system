@@ -1,0 +1,58 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# API Keys and Secrets
+*_secret*
+*_key.json
+*.pem
+*.key
+
+# Virtual Environment
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build and Dependencies
+dist/
+build/
+*.egg
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Node modules
+node_modules/
+npm-debug.log
+
+# Cache
+.pytest_cache/
+.mypy_cache/
+.cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
